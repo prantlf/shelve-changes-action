@@ -49,6 +49,10 @@ jobs:
           echo "empty cache key"
           exit 1
         fi
+    - name: Clear cache
+      uses: prantlf/delete-cache-action@v2
+      with:
+        key: shelved-changes-${{ github.sha }}
 
   macos:
     runs-on: macos-latest
@@ -86,6 +90,10 @@ jobs:
           echo "empty cache key"
           exit 1
         fi
+    - name: Clear cache
+      uses: prantlf/delete-cache-action@v2
+      with:
+        key: shelved-changes-${{ github.sha }}
 
   windows:
     runs-on: windows-latest
@@ -123,3 +131,7 @@ jobs:
           echo "empty cache key"
           exit 1
         fi
+    - name: Clear cache
+      uses: prantlf/delete-cache-action@v2
+      with:
+        key: shelved-changes-${{ github.sha }}

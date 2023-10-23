@@ -6,7 +6,7 @@ Uses git to detect changed files.
 
 ## Usage
 
-Save the modified files to cache:
+Store the modified files to cache:
 
 ```yml
 - uses: prantlf/shelve-changes-action@v1
