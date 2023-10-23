@@ -13,7 +13,7 @@ on:
 
 jobs:
 
-  linux:
+  test:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout sources
@@ -30,7 +30,9 @@ jobs:
         fi
     - name: Modify files
       shell: bash
-      run: echo "modified" >> CHANGELOG.md
+      run: |
+        echo "modified" >> LICENSE
+        echo "modified" >> CHANGELOG.md
     - name: Test modified
       id: modified
       uses: ./
@@ -49,86 +51,24 @@ jobs:
           echo "empty cache key"
           exit 1
         fi
-    - name: Clear cache
-      uses: prantlf/delete-cache-action@v2
+    - name: Remove files
+      shell: bash
+      run: rm LICENSE CHANGELOG.md
+    - name: Restore cache
+      uses: actions/cache/restore@v3
       with:
-        key: shelved-changes-${{ github.sha }}
-
-  macos:
-    runs-on: macos-latest
-    steps:
-    - name: Checkout sources
-      uses: actions/checkout@v4
-    - name: Test nothing
-      id: nothing
-      uses: ./
-    - name: Check nothing
+        path: ${{ steps.modified.outputs.files }}
+        key: ${{ steps.modified.outputs.cache-key }}
+        fail-on-cache-miss: true
+    - name: Check changes
       shell: bash
       run: |
-        if [[ "${{ steps.nothing.outputs.stored }}" == "true" ]]; then
-          echo "unexpectedly stored to cache"
+        if [ ! -f "LICENSE" ]; then
+          echo "LICENSE does not exist"
           exit 1
         fi
-    - name: Modify files
-      shell: bash
-      run: echo "modified" >> CHANGELOG.md
-    - name: Test modified
-      id: modified
-      uses: ./
-    - name: Check modified
-      shell: bash
-      run: |
-        if [[ "${{ steps.modified.outputs.stored }}" != "true" ]]; then
-          echo "not stored to cache"
-          exit 1
-        fi
-        if [[ "${{ steps.modified.outputs.files }}" == "" ]]; then
-          echo "no files added"
-          exit 1
-        fi
-        if [[ "${{ steps.modified.outputs.cache-key }}" == "" ]]; then
-          echo "empty cache key"
-          exit 1
-        fi
-    - name: Clear cache
-      uses: prantlf/delete-cache-action@v2
-      with:
-        key: shelved-changes-${{ github.sha }}
-
-  windows:
-    runs-on: windows-latest
-    steps:
-    - name: Checkout sources
-      uses: actions/checkout@v4
-    - name: Test nothing
-      id: nothing
-      uses: ./
-    - name: Check nothing
-      shell: bash
-      run: |
-        if [[ "${{ steps.nothing.outputs.stored }}" == "true" ]]; then
-          echo "unexpectedly stored to cache"
-          exit 1
-        fi
-    - name: Modify files
-      shell: bash
-      run: echo "modified" >> CHANGELOG.md
-    - name: Test modified
-      id: modified
-      uses: ./
-    - name: Check modified
-      shell: bash
-      run: |
-        if [[ "${{ steps.modified.outputs.stored }}" != "true" ]]; then
-          echo "not stored to cache"
-          exit 1
-        fi
-        if [[ "${{ steps.modified.outputs.files }}" == "" ]]; then
-          echo "no files added"
-          exit 1
-        fi
-        if [[ "${{ steps.modified.outputs.cache-key }}" == "" ]]; then
-          echo "empty cache key"
+        if [ ! -f "CHANGELOG.md" ]; then
+          echo "CHANGELOG.md does not exist"
           exit 1
         fi
     - name: Clear cache

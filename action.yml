@@ -52,7 +52,7 @@ runs:
     shell: bash
     run: |
       if [[ "$SC_BRANCHES" == "*" || " $SC_BRANCHES " == *" $GITHUB_REF_NAME "* ]]; then
-        SC_ARGS=" --exclude-standard -z"
+        SC_ARGS=" --exclude-standard"
         if [[ "$SC_MODIFIED" == "true" ]]; then
           SC_ARGS="$SC_ARGS -m"
           echo "modified files requested"
@@ -61,13 +61,18 @@ runs:
           SC_ARGS="$SC_ARGS -o"
           echo "new files requested"
         fi
-        SC_FILES=$(git ls-files $SC_ARGS | xargs -0)
+        echo "execute: \"git ls-files $SC_ARGS\""
+        SC_FILES=$(git ls-files $SC_ARGS)
         if [[ "$SC_FILES" != "" ]]; then
+          echo "changes detected:"
+          echo "$SC_FILES"
           echo "enable=true" >> $GITHUB_OUTPUT
-          echo "files=$SC_FILES" >> $GITHUB_OUTPUT
           echo "cache-key=shelved-changes-$SC_HASH" >> $GITHUB_OUTPUT
+          echo "files<<SC_FILES" >> $GITHUB_OUTPUT
+          echo "$SC_FILES" >> $GITHUB_OUTPUT
+          echo "SC_FILES" >> $GITHUB_OUTPUT
         else
-          echo "no changs detected"
+          echo "no changes detected"
         fi
       else
         echo "branch not enabled"
