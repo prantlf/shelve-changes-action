@@ -1,0 +1,125 @@
+name: Test or Release
+
+on:
+  push:
+    branches:
+      - master
+    tags-ignore:
+      - '**'
+    paths-ignore:
+      - '**/*.md'
+      - LICENSE
+  pull_request:
+
+jobs:
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout sources
+      uses: actions/checkout@v4
+    - name: Test nothing
+      id: nothing
+      uses: ./
+    - name: Check nothing
+      shell: bash
+      run: |
+        if [[ "${{ steps.nothing.outputs.stored }}" == "true" ]]; then
+          echo "unexpectedly stored to cache"
+          exit 1
+        fi
+    - name: Modify files
+      shell: bash
+      run: echo "modified" >> CHANGELOG.md
+    - name: Test modified
+      id: modified
+      uses: ./
+    - name: Check modified
+      shell: bash
+      run: |
+        if [[ "${{ steps.modified.outputs.stored }}" != "true" ]]; then
+          echo "not stored to cache"
+          exit 1
+        fi
+        if [[ "${{ steps.modified.outputs.files }}" == "" ]]; then
+          echo "no files added"
+          exit 1
+        fi
+        if [[ "${{ steps.modified.outputs.cache-key }}" == "" ]]; then
+          echo "empty cache key"
+          exit 1
+        fi
+
+  macos:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout sources
+      uses: actions/checkout@v4
+    - name: Test nothing
+      id: nothing
+      uses: ./
+    - name: Check nothing
+      shell: bash
+      run: |
+        if [[ "${{ steps.nothing.outputs.stored }}" == "true" ]]; then
+          echo "unexpectedly stored to cache"
+          exit 1
+        fi
+    - name: Modify files
+      shell: bash
+      run: echo "modified" >> CHANGELOG.md
+    - name: Test modified
+      id: modified
+      uses: ./
+    - name: Check modified
+      shell: bash
+      run: |
+        if [[ "${{ steps.modified.outputs.stored }}" != "true" ]]; then
+          echo "not stored to cache"
+          exit 1
+        fi
+        if [[ "${{ steps.modified.outputs.files }}" == "" ]]; then
+          echo "no files added"
+          exit 1
+        fi
+        if [[ "${{ steps.modified.outputs.cache-key }}" == "" ]]; then
+          echo "empty cache key"
+          exit 1
+        fi
+
+  windows:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout sources
+      uses: actions/checkout@v4
+    - name: Test nothing
+      id: nothing
+      uses: ./
+    - name: Check nothing
+      shell: bash
+      run: |
+        if [[ "${{ steps.nothing.outputs.stored }}" == "true" ]]; then
+          echo "unexpectedly stored to cache"
+          exit 1
+        fi
+    - name: Modify files
+      shell: bash
+      run: echo "modified" >> CHANGELOG.md
+    - name: Test modified
+      id: modified
+      uses: ./
+    - name: Check modified
+      shell: bash
+      run: |
+        if [[ "${{ steps.modified.outputs.stored }}" != "true" ]]; then
+          echo "not stored to cache"
+          exit 1
+        fi
+        if [[ "${{ steps.modified.outputs.files }}" == "" ]]; then
+          echo "no files added"
+          exit 1
+        fi
+        if [[ "${{ steps.modified.outputs.cache-key }}" == "" ]]; then
+          echo "empty cache key"
+          exit 1
+        fi

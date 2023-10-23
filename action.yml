@@ -1,0 +1,81 @@
+name: 'Shelve Changed Files'
+description: 'GitHub action for storing modified files to cache, to be restored by unshelve-changes-action in another job later.'
+author: prantlf
+
+branding:
+  icon: upload
+  color: blue
+
+inputs:
+  branches:
+    description: >-
+      Branches which this action should run for, which are used to publishing releases. Use spaces for separating the branch names. If you want to use multiple lines in YAML, introduce them with ">-". If you want to allow all branches, set the value to "*".
+    default: main master
+  enable:
+    description: >-
+      Can be set to `false` to prevent this action from running. It's helpful in the pipeline, which will not continue releasing, but only building and testing, and that will be decided in the middle of a job execution.
+    default: true
+  add-modified:
+    description: >-
+      Can be set to `false` to prevent modified files from adding to the cache.
+    default: true
+  add-new:
+    description: >-
+      Can be set to `true` to add also newly created files to the cache.
+    default: false
+
+outputs:
+  stored:
+    description: >-
+      Set to `true` if the files were stored to cache.
+    value: ${{ steps.setup.outputs.enable }}
+  files:
+    description: >-
+      Files put by this action to cache, separated by spaces.
+    value: ${{ steps.setup.outputs.files }}
+  cache-key:
+    description: >-
+      The key, which was used to store the files to cache.
+    value: ${{ steps.setup.outputs.cache-key }}
+
+runs:
+  using: 'composite'
+  steps:
+  - name: Setup parameters
+    if: ${{ inputs.enable == 'true' }}
+    id: setup
+    env:
+      SC_HASH: ${{ github.sha }}
+      SC_BRANCHES: ${{ inputs.branches }}
+      SC_MODIFIED: ${{ inputs.add-modified }}
+      SC_NEW: ${{ inputs.add-new }}
+    shell: bash
+    run: |
+      if [[ "$SC_BRANCHES" == "*" || " $SC_BRANCHES " == *" $GITHUB_REF_NAME "* ]]; then
+        SC_ARGS=" --exclude-standard -z"
+        if [[ "$SC_MODIFIED" == "true" ]]; then
+          SC_ARGS="$SC_ARGS -m"
+          echo "modified files requested"
+        fi
+        if [[ "$SC_NEW" == "true" ]]; then
+          SC_ARGS="$SC_ARGS -o"
+          echo "new files requested"
+        fi
+        SC_FILES=$(git ls-files $SC_ARGS | xargs -0)
+        if [[ "$SC_FILES" != "" ]]; then
+          echo "enable=true" >> $GITHUB_OUTPUT
+          echo "files=$SC_FILES" >> $GITHUB_OUTPUT
+          echo "cache-key=shelved-changes-$SC_HASH" >> $GITHUB_OUTPUT
+        else
+          echo "no changs detected"
+        fi
+      else
+        echo "branch not enabled"
+      fi
+  - name: Put changes to cache
+    if: ${{ steps.setup.outputs.enable == 'true' }}
+    uses: actions/cache/save@v3
+    with:
+      path: ${{ steps.setup.outputs.files }}
+      key: ${{ steps.setup.outputs.cache-key }}
+      enableCrossOsArchive: true
