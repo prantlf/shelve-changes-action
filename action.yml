@@ -79,7 +79,7 @@ runs:
       fi
   - name: Put changes to cache
     if: ${{ steps.setup.outputs.enable == 'true' }}
-    uses: actions/cache/save@v3
+    uses: actions/cache/save@v4
     with:
       path: ${{ steps.setup.outputs.files }}
       key: ${{ steps.setup.outputs.cache-key }}
