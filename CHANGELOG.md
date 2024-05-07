@@ -1,5 +1,11 @@
 # Changes
 
+# [2.1.0](https://github.com/prantlf/shelve-changes-action/compare/v2.0.0...v2.1.0) (2024-05-07)
+
+## Features
+
+* Allow specifying files for caching explicitly ([60bf115](https://github.com/prantlf/shelve-changes-action/commit/60bf115dce7df47ff4e47011930046f78a12bfa9))
+
 # [2.0.0](https://github.com/prantlf/shelve-changes-action/compare/v1.0.1...v2.0.0) (2024-05-07)
 
 ## Bug Fixes
@@ -19,4 +25,5 @@ GitHub actions which this action depends on were upgraded to their latest versio
 # 1.0.0 (2023-10-23)
 
 Initial release
+modified
 modified
