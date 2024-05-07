@@ -23,6 +23,9 @@ inputs:
     description: >-
       Can be set to `true` to add also newly created files to the cache.
     default: false
+  add-extra:
+    description: >-
+      Additional files for putting to cache by this action, separated by spaces. They should not be picked by `add-modified` or `add-new` to avoid duplicates in the final list.
 
 outputs:
   stored:
@@ -49,30 +52,56 @@ runs:
       SC_BRANCHES: ${{ inputs.branches }}
       SC_MODIFIED: ${{ inputs.add-modified }}
       SC_NEW: ${{ inputs.add-new }}
+      SC_EXTRA: ${{ inputs.add-extra }}
     shell: bash
     run: |
       if [[ "$SC_BRANCHES" == "*" || " $SC_BRANCHES " == *" $GITHUB_REF_NAME "* ]]; then
-        SC_ARGS=" --exclude-standard"
-        if [[ "$SC_MODIFIED" == "true" ]]; then
-          SC_ARGS="$SC_ARGS -m"
-          echo "modified files requested"
-        fi
-        if [[ "$SC_NEW" == "true" ]]; then
-          SC_ARGS="$SC_ARGS -o"
-          echo "new files requested"
-        fi
-        echo "execute: \"git ls-files $SC_ARGS\""
-        SC_FILES=$(git ls-files $SC_ARGS)
-        if [[ "$SC_FILES" != "" ]]; then
-          echo "changes detected:"
-          echo "$SC_FILES"
+        if [[ "$SC_MODIFIED" == "true" || "$SC_NEW" == "true" ]]; then
+          SC_ARGS=" --exclude-standard"
+          if [[ "$SC_MODIFIED" == "true" ]]; then
+            SC_ARGS="$SC_ARGS -m"
+            echo "modified files requested"
+          fi
+          if [[ "$SC_NEW" == "true" ]]; then
+            SC_ARGS="$SC_ARGS -o"
+            echo "new files requested"
+          fi
+          echo "execute: \"git ls-files $SC_ARGS\""
+          SC_FILES=$(git ls-files $SC_ARGS)
+          if [[ "$SC_FILES" != "" ]]; then
+            echo "changes detected:"
+            echo "$SC_FILES"
+            echo "enable=true" >> $GITHUB_OUTPUT
+            echo "cache-key=shelved-changes-$SC_HASH" >> $GITHUB_OUTPUT
+            echo "files<<SC_FILES" >> $GITHUB_OUTPUT
+            echo "$SC_FILES" >> $GITHUB_OUTPUT
+            if [[ "$SC_EXTRA" != "" ]]; then
+              echo "files specified:"
+              echo "$SC_EXTRA"
+              echo "$SC_EXTRA" >> $GITHUB_OUTPUT
+            fi
+            echo "SC_FILES" >> $GITHUB_OUTPUT
+          elif [[ "$SC_EXTRA" != "" ]]; then
+            echo "files specified:"
+            echo "$SC_EXTRA"
+            echo "enable=true" >> $GITHUB_OUTPUT
+            echo "cache-key=shelved-changes-$SC_HASH" >> $GITHUB_OUTPUT
+            echo "files<<SC_FILES" >> $GITHUB_OUTPUT
+            echo "$SC_EXTRA" >> $GITHUB_OUTPUT
+            echo "SC_FILES" >> $GITHUB_OUTPUT
+          else
+            echo "no changes detected nor files specified"
+          fi
+        elif [[ "$SC_EXTRA" != "" ]]; then
+          echo "files specified:"
+          echo "$SC_EXTRA"
           echo "enable=true" >> $GITHUB_OUTPUT
           echo "cache-key=shelved-changes-$SC_HASH" >> $GITHUB_OUTPUT
           echo "files<<SC_FILES" >> $GITHUB_OUTPUT
-          echo "$SC_FILES" >> $GITHUB_OUTPUT
+          echo "$SC_EXTRA" >> $GITHUB_OUTPUT
           echo "SC_FILES" >> $GITHUB_OUTPUT
         else
-          echo "no changes detected"
+          echo "no files specified"
         fi
       else
         echo "branch not enabled"
