@@ -12,6 +12,17 @@ Store the modified files to cache:
 - uses: prantlf/shelve-changes-action@v1
 ```
 
+Store only some of the modified files to cache, if there're more modified on the disk:
+
+```yml
+- uses: prantlf/shelve-changes-action@v1
+  with:
+    add-modified: false
+    add-extra: |
+      package.json
+      CHANGELOG.md
+```
+
 ## Inputs
 
 The following parameters can be specified using the `with` object:
