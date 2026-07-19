@@ -1,5 +1,15 @@
 # Changes
 
+# [3.0.0](https://github.com/prantlf/shelve-changes-action/compare/v2.1.0...v3.0.0) (2026-07-19)
+
+## Features
+
+* Upgrade dependencies ([e71a793](https://github.com/prantlf/shelve-changes-action/commit/e71a79373c65820d9cd7a3917ae96039a2a7bef5))
+
+## BREAKING CHANGES
+
+GitHub actions which this action depends on were upgraded to their latest versions, which require Node.js 24 for running.
+
 # [2.1.0](https://github.com/prantlf/shelve-changes-action/compare/v2.0.0...v2.1.0) (2024-05-07)
 
 ## Features
@@ -25,5 +35,6 @@ GitHub actions which this action depends on were upgraded to their latest versio
 # 1.0.0 (2023-10-23)
 
 Initial release
+modified
 modified
 modified
