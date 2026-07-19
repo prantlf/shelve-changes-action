@@ -12,11 +12,13 @@ on:
   pull_request:
 
 jobs:
-
   test:
+    permissions:
+      actions: write
+      contents: write
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - uses: ./
       id: nothing
     - run: |
@@ -50,7 +52,7 @@ jobs:
       shell: bash
     - run: rm LICENSE CHANGELOG.md README.md
       shell: bash
-    - uses: actions/cache/restore@v4
+    - uses: actions/cache/restore@v6
       with:
         path: ${{ steps.modified.outputs.files }}
         key: ${{ steps.modified.outputs.cache-key }}
@@ -69,14 +71,13 @@ jobs:
           exit 1
         fi
       shell: bash
-    - uses: prantlf/delete-cache-action@v3
+    - uses: prantlf/delete-cache-action@v4
       with:
         key: shelved-changes-${{ github.sha }}
-    - uses: prantlf/publish-release-action@v1
+    - uses: prantlf/publish-release-action@v2
       if: ${{ github.ref_name == 'master' }}
       with:
         no-bump: true
         no-archives: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
