@@ -9,13 +9,13 @@ Uses git to detect changed files.
 Store the modified files to cache:
 
 ```yml
-- uses: prantlf/shelve-changes-action@v2
+- uses: prantlf/shelve-changes-action@v3
 ```
 
 Store only some of the modified files to cache, if there're more modified on the disk:
 
 ```yml
-- uses: prantlf/shelve-changes-action@v2
+- uses: prantlf/shelve-changes-action@v3
   with:
     add-modified: false
     add-extra: |
